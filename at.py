@@ -9,6 +9,8 @@ import time
 import MySQLdb
 import requests
 
+REFRESH_TIME = 30
+OUTPUT_REPORT = 'at.json'
 LEASE_URL = 'http://10.0.10.5/dhcp.leases'
 LEASE_CACHE_TIMEOUT = 10  # seconds
 MYSQL_USER = 'root'
@@ -48,7 +50,16 @@ def _connect_db():
 
 def _anonymyze_email(email):
     """Anonymize an email to make spiders piss off."""
-    return email
+    # For now we change the last character of the user part and first domain
+    # part to a '?'. Good enough?
+    user_part, domains_part = email.split('@')
+    first_domain = domains_part.split('.')[0]
+    rest_domains = '.'.join(domains_part.split('.')[1:])
+
+    user_part = user_part[:-1] + '?'
+    first_domain = first_domain[:-1] + '?'
+
+    return '{}@{}.{}'.format(user_part, first_domain, rest_domains)
 
 
 def _hash_mac(mac, salt):
@@ -82,4 +93,13 @@ def generate_json():
     return json.dumps([_anonymyze_email(e) for e in clients.keys()])
 
 
-print generate_json()
+# If we are being run as a library, start the main loop
+if __name__ == '__main__':
+    while True:
+        try:
+            j = generate_json()
+        except Exception as e:  # gotta catch 'em all :^)
+            print 'Exception: ' + str(e)
+        with open(OUTPUT_REPORT, 'w') as f:
+            f.write(j)
+        time.sleep(REFRESH_TIME)
