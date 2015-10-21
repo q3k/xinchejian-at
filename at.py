@@ -95,11 +95,19 @@ def push_file(filepath, remote):
     subprocess.check_call(['scp', filepath, remote])
 
 
+def _get_gravatar(client):
+    """Get a gravatar from an email address."""
+    gravatar_url = "http://www.gravatar.com/avatar/"
+    gravatar_url += hashlib.md5(client.lower()).hexdigest()
+    return gravatar_url
+
+
 def generate_json():
     """Generate a report JSON based on people currently at XCJ."""
     macs = get_leases()
     clients = get_clients(macs)
-    return json.dumps([_anonymyze_email(e) for e in clients.keys()])
+    res = dict((_anonymyze_email(e), _get_gravatar(e)) for e in clients.keys())
+    return json.dumps(res)
 
 
 # If we are being run as a program, start the main loop
