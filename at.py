@@ -5,6 +5,8 @@ __author__ = "Sergiusz 'q3k' Bazanski"
 import hashlib
 import json
 import time
+import subprocess
+import sys
 
 import MySQLdb
 import requests
@@ -87,7 +89,14 @@ def get_clients(macs):
     return clients
 
 
+def push_file(filepath, remote):
+    """Push a file via SSH."""
+    # Maybe implement this in a smarter way...
+    subprocess.check_call(['scp', filepath, remote])
+
+
 def generate_json():
+    """Generate a report JSON based on people currently at XCJ."""
     macs = get_leases()
     clients = get_clients(macs)
     return json.dumps([_anonymyze_email(e) for e in clients.keys()])
@@ -95,11 +104,24 @@ def generate_json():
 
 # If we are being run as a program, start the main loop
 if __name__ == '__main__':
+    if len(sys.argv) == 2:
+        ssh_remote = sys.argv[1]
+        print 'Will push to SSH {}'.format(ssh_remote)
+    else:
+        ssh_remote = None
+        print 'No SSH remote provided, will not push resulting report.'
     while True:
         try:
             j = generate_json()
         except Exception as e:  # gotta catch 'em all :^)
-            print 'Exception: ' + str(e)
+            print 'Exception while generating: ' + str(e)
         with open(OUTPUT_REPORT, 'w') as f:
             f.write(j)
+
+        if ssh_remote is not None:
+            try:
+                push_file(OUTPUT_REPORT, ssh_remote)
+            except Exception as e:  # yeah... ,_,
+                print 'Exception while pushing: ' + str(e)
+
         time.sleep(REFRESH_TIME)
