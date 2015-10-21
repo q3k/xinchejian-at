@@ -8,6 +8,8 @@ Setup
 
 Install python, python-requests, python-mysqldb.
 
+If you want a fancy HTML UI, copy the content of dist/ somewhere, it will access /at.json via AJAX.
+
 Usage
 -----
 
