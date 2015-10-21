@@ -55,6 +55,9 @@ def _anonymyze_email(email):
     # For now we change the last character of the user part and first domain
     # part to a '?'. Good enough?
     user_part, domains_part = email.split('@')
+    # Is this in the xinchejian.com comain? Just return the user part
+    if domains_part == 'xinchejian.com':
+        return user_part
     first_domain = domains_part.split('.')[0]
     rest_domains = '.'.join(domains_part.split('.')[1:])
 

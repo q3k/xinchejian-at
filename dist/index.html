@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>At XinCheJian</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+  </head>
+  <body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6" style="text-align: center;">
+                <h1>Currently at XinCheJian:</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6" id="content" style="text-align: center; margin-top: 20px;">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var update = function() {
+                $.get('/at.json', function(data) {
+                    $("#content").empty();
+                    $.each(data, function(email, gravatar) {
+                        $("#content").append('<img src="' + gravatar + '" style="margin-left: 5px; margin-bottom: 5px;" data-toggle="tooltip" data-placement="bottom" title="' + email + '"/>');
+                    });
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+            };
+
+            setTimeout(update, 1000);
+        });
+    </script>
+  </body>
+</html>
