@@ -93,7 +93,7 @@ def generate_json():
     return json.dumps([_anonymyze_email(e) for e in clients.keys()])
 
 
-# If we are being run as a library, start the main loop
+# If we are being run as a program, start the main loop
 if __name__ == '__main__':
     while True:
         try:
